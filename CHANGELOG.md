@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Sanitized unhandled exception responses outside development so internal database and filesystem details are not exposed by the BFF.
+
 ### Added
 
 - Generic `ContentProxyController` and `PageBootstrapController` examples, with proxy, fail-fast aggregation and partial-degradation primitives in `BaseProxyController`.
