@@ -1,11 +1,11 @@
-# ci4-bff-starter
+# ci4-website-builder-bff
 
 [![CI4](https://img.shields.io/badge/CodeIgniter-4.7-EF4223)](https://codeigniter.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4)](https://www.php.net/)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%208-2563EB)](phpstan.neon)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-CodeIgniter 4 **Backend-for-Frontend** starter — a stateless HTTP gateway
+CodeIgniter 4 **Backend-for-Frontend** starter — an optional stateless HTTP gateway
 that fronts a `ci4-api-starter` hub and one optional `ci4-domain-starter`
 apps for decoupled clients (SPAs, mobile).
 

@@ -1,0 +1,11 @@
+.git
+.env
+.php-cs-fixer.cache
+.phpunit.cache
+node_modules
+vendor
+writable/cache/*
+writable/debugbar/*
+writable/logs/*
+writable/session/*
+writable/uploads/*

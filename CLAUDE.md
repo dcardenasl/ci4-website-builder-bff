@@ -4,12 +4,14 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-`ci4-bff-starter` is a CodeIgniter 4 **Backend-for-Frontend** template. It is
+`ci4-website-builder-bff` is a CodeIgniter 4 **Backend-for-Frontend** template
+in the website-builder monorepo (the standalone published starter keeps the
+same contract). It is
 a stateless HTTP gateway placed between decoupled clients (SPA, mobile) and
 the rest of the platform:
 
 ```
-Client (SPA/mobile)  →  ci4-bff-starter (:8188)
+Client (SPA/mobile)  →  ci4-website-builder-bff (:8188, optional)
                             ├─▶ ci4-api-starter (hub, :8180)
                             └─▶ ci4-domain-starter (:8190)
 ```
@@ -32,7 +34,7 @@ hub + domain, generic content proxying, and optional read-only public reads.
 ## Essential commands
 
 ```bash
-# Dev server (default port 8188 to fit the 808X series of the kit)
+# Dev server (default port 8188; opt-in in the website-builder root launcher)
 php spark serve --port 8188
 
 # Tests

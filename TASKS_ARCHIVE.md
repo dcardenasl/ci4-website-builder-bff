@@ -5,6 +5,11 @@
 
 ---
 
+## ✅ Backport de mejoras de Teatro Museo — Fase 5 (2026-08-25)
+
+- **BACKPORT-05-bff** — documentación del BFF opcional, runtime Docker y operación en el puerto
+  `8188`; `composer quality` y smoke de generación completados.
+
 ## ✅ Milestone BFF v1.1 — Architecture Hardening (2026-06-10 y anteriores)
 
 | ID | Descripción | Estado |
