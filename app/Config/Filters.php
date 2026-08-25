@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Config;
 
+use App\Filters\EffectivePermissionsAuthFilter;
 use App\Filters\IntrospectAuthFilter;
+use App\Filters\RequestTelemetryFilter;
 use App\Filters\ThrottleFilter;
 use CodeIgniter\Config\Filters as BaseFilters;
 use CodeIgniter\Filters\CSRF;
@@ -45,6 +47,9 @@ class Filters extends BaseFilters
         'performance'        => PerformanceMetrics::class,
         'throttle'           => ThrottleFilter::class,
         'introspectauth'     => IntrospectAuthFilter::class,
+        'effectivepermissionsauth' => EffectivePermissionsAuthFilter::class,
+        'webappkey'          => \App\Filters\WebAppKeyRequiredFilter::class,
+        'telemetry'          => RequestTelemetryFilter::class,
         'locale'             => LocaleFilter::class,
         'featureToggle'      => FeatureToggleFilter::class,
         'deprecationheaders' => \dcardenasl\Ci4ApiCore\Http\Filters\DeprecationHeadersFilter::class,
@@ -76,6 +81,7 @@ class Filters extends BaseFilters
         'before' => [
             'maintenance',
             'correlationid',
+            'telemetry',
             'locale',
             'cors',
             'invalidchars',
@@ -89,6 +95,7 @@ class Filters extends BaseFilters
             'secureheaders',
             'deprecationheaders',
             'correlationid',
+            'telemetry',
             'throttle' => ['except' => ['ping', 'live', 'ready']],
         ],
     ];

@@ -21,9 +21,9 @@ use RuntimeException;
  * — the hub's base URL — is canonicalised under `bff.hubUrl` here; `hub.url`
  * is accepted as a fallback so older `.env` files keep working.
  *
- * Authentication is forward-only: the BFF does not validate JWTs, it relays
+ * Authentication is forward-only: the BFF does not validate bearer tokens, it relays
  * the client's `Authorization` header to the upstream. This config therefore
- * has nothing to say about JWT secrets or sessions.
+ * has nothing to say about signing secrets or sessions.
  */
 class Bff extends BaseConfig
 {
@@ -34,12 +34,14 @@ class Bff extends BaseConfig
      */
     public string $hubUrl = '';
 
-    /**
-     * Base URLs of upstream domain apps.
-     *
-     * @var array<string, string> Key is the domain identifier, value is the URL.
-     */
-    public array $domains = [];
+    /** Base URL of the optional upstream domain app (no trailing slash). */
+    public string $domainUrl = '';
+
+    /** Shared key accepted by opt-in public-read routes. */
+    public string $webAppKey = '';
+
+    /** Direct SQL public-read support is deliberately opt-in. */
+    public bool $publicReadEnabled = false;
 
     /**
      * Origins permitted by CORS. Populated from the comma-separated
@@ -53,11 +55,13 @@ class Bff extends BaseConfig
     {
         parent::__construct();
 
-        $this->hubUrl = self::resolveHubUrl();
-
-        // Parse domains from env: BFF_DOMAINS="auth:http://localhost:8190,billing:http://localhost:8091"
-        $rawDomains = (string) env('BFF_DOMAINS', '');
-        $this->domains = $this->parseDomains($rawDomains);
+        $this->hubUrl = rtrim(self::resolveHubUrl(), '/');
+        $this->domainUrl = rtrim((string) env('bff.domainUrl', ''), '/');
+        $this->webAppKey = (string) (env('BFF_API_KEY') ?: env('WEB_API_KEY', ''));
+        $this->publicReadEnabled = filter_var(
+            env('BFF_PUBLIC_READ_SUPPORT', false),
+            FILTER_VALIDATE_BOOL,
+        );
 
         $rawOrigins = (string) env('BFF_ALLOWED_ORIGINS', '');
         $this->allowedOrigins = $this->parseCsv($rawOrigins);
@@ -69,29 +73,6 @@ class Bff extends BaseConfig
             );
         }
     }
-
-    /**
-     * Parses the BFF_DOMAINS env var into an associative array.
-     *
-     * @return array<string, string>
-     */
-    private function parseDomains(string $value): array
-    {
-        if ($value === '') {
-            return [];
-        }
-
-        $domains = [];
-        foreach (explode(',', $value) as $item) {
-            $parts = explode(':', trim($item), 2);
-            if (count($parts) === 2) {
-                $domains[trim($parts[0])] = trim($parts[1]);
-            }
-        }
-
-        return $domains;
-    }
-
 
     /**
      * Single resolver shared with {@see Hub} so both configs land on the same

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Support\RequestTelemetry;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -12,30 +13,12 @@ use dcardenasl\Ci4ApiCore\Http\ApiResponse;
 use dcardenasl\Ci4ApiCore\Http\Client\AbstractServiceClient;
 use dcardenasl\Ci4ApiCore\Support\ExceptionFormatter;
 use LogicException;
+use Throwable;
 
-/**
- * Base controller for BFF proxy/aggregator endpoints.
- *
- * Subclasses pick one of two primitives:
- *
- *  - {@see proxy()} — transparent forward. Upstream status/body/content-type
- *    flow back unchanged. Use for one-to-one passthroughs.
- *  - {@see aggregate()} — combine N upstream calls into a single
- *    `ApiResponse::success([...])` envelope. Use when one client request
- *    fans out to multiple services.
- *
- * Canonical {@see ApiException}s thrown by the underlying client are caught
- * here and rendered via {@see ExceptionFormatter} so the wire shape matches
- * the rest of the platform.
- */
+/** Shared proxy and composition primitives for stateless BFF controllers. */
 abstract class BaseProxyController extends Controller
 {
-    /**
-     * Headers to copy from the upstream response onto the BFF's response.
-     * Subclasses can extend (e.g. `Link`, `ETag`) by overriding.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     protected array $forwardResponseHeaders = ['Content-Type', 'Content-Language'];
 
     protected function proxy(AbstractServiceClient $client, string $upstreamPath): ResponseInterface
@@ -46,7 +29,6 @@ abstract class BaseProxyController extends Controller
 
         try {
             $upstream = $client->forward($this->request, $upstreamPath);
-
             $contentType = $upstream->getHeaderLine('Content-Type') ?: 'application/json';
 
             $this->response
@@ -58,6 +40,7 @@ abstract class BaseProxyController extends Controller
                 if ($header === 'Content-Type') {
                     continue;
                 }
+
                 $value = $upstream->getHeaderLine($header);
                 if ($value !== '') {
                     $this->response->setHeader($header, $value);
@@ -65,40 +48,155 @@ abstract class BaseProxyController extends Controller
             }
 
             return $this->response;
-        } catch (ApiException $e) {
-            return $this->respondWithException($e);
+        } catch (ApiException $exception) {
+            return $this->respondWithException($exception);
         }
     }
 
-    /**
-     * Run each call (a closure returning an array) sequentially and merge the
-     * results under their key into a single success envelope. The first call
-     * that throws an {@see ApiException} aborts the rest and is rendered as
-     * the response — this matches the fail-fast semantics the kit already
-     * uses for hub/domain errors.
-     *
-     * @param array<string, callable(): array<string, mixed>> $calls
-     */
+    /** @param array<string, callable(): array<string, mixed>> $calls */
     protected function aggregate(array $calls): ResponseInterface
     {
         try {
             $data = [];
             foreach ($calls as $key => $call) {
-                $data[$key] = $call();
+                $startedAt = hrtime(true);
+                try {
+                    $data[$key] = $call();
+                    RequestTelemetry::recordSource($key, $this->elapsedSince($startedAt), 'ok', 200);
+                } catch (ApiException $exception) {
+                    RequestTelemetry::recordSource($key, $this->elapsedSince($startedAt), 'unavailable', $exception->getStatusCode());
+                    throw $exception;
+                } catch (Throwable $exception) {
+                    RequestTelemetry::recordSource($key, $this->elapsedSince($startedAt), 'unavailable', 500);
+                    throw $exception;
+                }
             }
 
             return $this->response->setJSON(ApiResponse::success($data));
-        } catch (ApiException $e) {
-            return $this->respondWithException($e);
+        } catch (ApiException $exception) {
+            return $this->respondWithException($exception);
+        } catch (Throwable $exception) {
+            log_message('error', sprintf(
+                'aggregate() call failed: %s: %s',
+                $exception::class,
+                $exception->getMessage(),
+            ));
+
+            return $this->respondWithException(new \dcardenasl\Ci4ApiCore\Exceptions\ServiceUnavailableException(
+                'One or more upstream sources are unavailable.',
+            ));
         }
     }
 
-    private function respondWithException(ApiException $e): ResponseInterface
+    /**
+     * Execute independent sources without hiding healthy data when one fails.
+     *
+     * @param array<string, callable(): array<array-key, mixed>> $calls
+     * @return array<string, array{state: 'ok'|'unavailable', data: array<string, mixed>, duration_ms: float}>
+     */
+    protected function aggregatePartialData(array $calls): array
     {
-        $result = ExceptionFormatter::format($e);
+        $data = [];
+
+        foreach ($calls as $key => $call) {
+            $startedAt = hrtime(true);
+            try {
+                $payload = $call();
+                $data[$key] = [
+                    'state' => 'ok',
+                    'data' => $payload,
+                    'duration_ms' => $this->elapsedSince($startedAt),
+                ];
+                RequestTelemetry::recordSource($key, $this->elapsedSince($startedAt), 'ok', 200);
+            } catch (Throwable $exception) {
+                $status = $exception instanceof ApiException ? $exception->getStatusCode() : 500;
+                RequestTelemetry::recordSource($key, $this->elapsedSince($startedAt), 'unavailable', $status);
+                log_message('error', sprintf(
+                    'Partial aggregate source "%s" unavailable: %s: %s',
+                    $key,
+                    $exception::class,
+                    $exception->getMessage(),
+                ));
+
+                $data[$key] = [
+                    'state' => 'unavailable',
+                    'data' => [],
+                    'duration_ms' => $this->elapsedSince($startedAt),
+                ];
+            }
+        }
+
+        return $data;
+    }
+
+    /** @param callable(): ResponseInterface $operation */
+    protected function handleOperation(callable $operation, string $source): ResponseInterface
+    {
+        $startedAt = hrtime(true);
+        try {
+            $response = $operation();
+            $status = $response->getStatusCode();
+            RequestTelemetry::recordSource(
+                $source,
+                $this->elapsedSince($startedAt),
+                $status >= 400 ? 'unavailable' : 'ok',
+                $status,
+            );
+
+            return $response;
+        } catch (ApiException $exception) {
+            RequestTelemetry::recordSource($source, $this->elapsedSince($startedAt), 'unavailable', $exception->getStatusCode());
+            return $this->respondWithException($exception);
+        } catch (Throwable $exception) {
+            RequestTelemetry::recordSource($source, $this->elapsedSince($startedAt), 'unavailable', 503);
+            log_message('error', sprintf(
+                '%s unavailable: %s: %s',
+                $source,
+                $exception::class,
+                $exception->getMessage(),
+            ));
+
+            return $this->respondWithException(new \dcardenasl\Ci4ApiCore\Exceptions\ServiceUnavailableException(
+                $source . ' unavailable.',
+            ));
+        }
+    }
+
+    /** @param list<string> $states */
+    protected function overallState(array $states): string
+    {
+        if ($states !== [] && count(array_unique($states)) === 1 && $states[0] === 'ok') {
+            return 'ok';
+        }
+
+        if (in_array('ok', $states, true)) {
+            return 'partial';
+        }
+
+        return 'unavailable';
+    }
+
+    protected function extractBearerToken(): ?string
+    {
+        $header = $this->request->getHeaderLine('Authorization');
+        if (preg_match('/^Bearer\s+(.+)$/i', $header, $matches)) {
+            return trim($matches[1]);
+        }
+
+        return null;
+    }
+
+    protected function respondWithException(ApiException $exception): ResponseInterface
+    {
+        $result = ExceptionFormatter::format($exception);
 
         return $this->response
             ->setStatusCode($result->status)
             ->setJSON($result->body);
+    }
+
+    private function elapsedSince(int $startedAt): float
+    {
+        return (hrtime(true) - $startedAt) / 1_000_000;
     }
 }

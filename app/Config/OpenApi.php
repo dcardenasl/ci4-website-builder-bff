@@ -14,7 +14,8 @@ use OpenApi\Attributes as OA;
  * tokens, so the security scheme below documents the wire format only.
  *
  * Tags map to the BFF's own controllers: System (health/ping/live/ready),
- * Users (proxy example, BFF-103), Me (introspect-auth aggregator, BFF-106).
+ * Users (proxy example), Content (domain proxy) and PublicRead (generic page
+ * composition).
  */
 #[OA\OpenApi(
     openapi: '3.0.0',
@@ -46,6 +47,14 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(
     name: 'Me',
     description: 'Aggregator endpoints scoped to the authenticated user'
+)]
+#[OA\Tag(
+    name: 'Content',
+    description: 'Generic content proxy endpoints'
+)]
+#[OA\Tag(
+    name: 'PublicRead',
+    description: 'Generic public page composition endpoints'
 )]
 class OpenApi
 {
