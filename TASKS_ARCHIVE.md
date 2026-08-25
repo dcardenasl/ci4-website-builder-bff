@@ -22,4 +22,4 @@
 Se incorporó el BFF genérico opcional con `ci4-api-core ^1.5`, clientes Hub/Domain, proxy de
 contenido, agregación de página, telemetría acotada, filtro `X-App-Key` fail-closed y seam
 `PublicReadSupport` de solo lectura apagado por defecto. No contiene código de negocio de Teatro
-Museo ni secreto local de firma JWT. Ver commits `0ca03c5`, `b6548a6` y `8427561`.
+Museo ni secreto local de firma JWT. Ver commits `0ca03c5`, `b6548a6`, `8427561` y `1eb0940`.
