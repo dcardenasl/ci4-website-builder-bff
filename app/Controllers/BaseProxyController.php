@@ -129,6 +129,31 @@ abstract class BaseProxyController extends Controller
         return $data;
     }
 
+    /**
+     * Return partial source states in a standard success envelope.
+     *
+     * The response remains 200 when at least one source is healthy and becomes
+     * 503 only when every source is unavailable.
+     *
+     * @param array<string, callable(): array<array-key, mixed>> $calls
+     */
+    protected function aggregatePartial(array $calls): ResponseInterface
+    {
+        $sources = $this->aggregatePartialData($calls);
+        $states = array_values(array_map(
+            static fn (array $source): string => $source['state'],
+            $sources,
+        ));
+        $state = $this->overallState($states);
+
+        return $this->response
+            ->setStatusCode($state === 'unavailable' ? 503 : 200)
+            ->setJSON(ApiResponse::success([
+                'source' => ['state' => $state],
+                'sources' => $sources,
+            ]));
+    }
+
     /** @param callable(): ResponseInterface $operation */
     protected function handleOperation(callable $operation, string $source): ResponseInterface
     {
