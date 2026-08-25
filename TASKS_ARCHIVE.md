@@ -5,6 +5,14 @@
 
 ---
 
+## ✅ Remediación de huecos profundos — Fase 0 (2026-08-25)
+
+- **GAP-00-bff** — `AppExceptionHandler` sanitiza mensajes de excepciones fuera de development,
+  con regresiones de no filtración y JSON válido. Commit `b9d33e6`; `composer quality`, suite de
+  integración, `composer cs-check` y pre-commit completados.
+
+---
+
 ## ✅ Backport de mejoras de Teatro Museo — Fase 5 (2026-08-25)
 
 - **BACKPORT-05-bff** — documentación del BFF opcional, runtime Docker y operación en el puerto
