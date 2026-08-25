@@ -1,7 +1,7 @@
 # TASKS_ARCHIVE — ci4-bff-starter
 
 > Historial de tareas completadas. Movido desde TASKS.md para mantener el tracker activo liviano.
-> Última actualización: 2026-07-24
+> Última actualización: 2026-08-25
 
 ---
 
@@ -16,3 +16,10 @@
 | BFF-M3 | Generador de Proxy Dinámico — comando CLI Spark `bff:make-proxy` para generar automáticamente controladores de proxy transparentes y archivos de rutas. | ✅ |
 
 **Nota:** BFF-101/102/107/111 (refactor de `HubClient` sobre `AbstractServiceClient` compartido del core, Sentry breadcrumbs) se rastrearon del lado de `ci4-api-core` y `ci4-domain-starter` — ver sus respectivos `TASKS_ARCHIVE.md`.
+
+## ✅ BACKPORT-02-bff — Fase 2 del backport Teatro Museo (2026-08-25)
+
+Se incorporó el BFF genérico opcional con `ci4-api-core ^1.5`, clientes Hub/Domain, proxy de
+contenido, agregación de página, telemetría acotada, filtro `X-App-Key` fail-closed y seam
+`PublicReadSupport` de solo lectura apagado por defecto. No contiene código de negocio de Teatro
+Museo ni secreto local de firma JWT. Ver commits `0ca03c5`, `b6548a6` y `8427561`.

@@ -16,7 +16,9 @@ Client (SPA/mobile)  →  ci4-bff-starter (:8188)
 
 ## Boundaries
 
-- **No database.** No migrations, no models, no repositories.
+- **No writable database.** No migrations, models, or repositories. The
+  `PublicReadSupport` connection is an explicit, disabled-by-default,
+  read-only seam for sites that opt in.
 - **No JWT validation.** The BFF forwards the client's `Authorization`
   header to the upstream hub/domain. The upstream validates and either
   returns the response or a 401 — the BFF just relays.
@@ -25,7 +27,7 @@ Client (SPA/mobile)  →  ci4-bff-starter (:8188)
 - **No user storage.** Users live in the hub.
 
 The BFF's job is: CORS, request shaping, response aggregation across
-hub + domain, and optional service-token-based admin calls.
+hub + domain, generic content proxying, and optional read-only public reads.
 
 ## Essential commands
 
@@ -61,10 +63,10 @@ Base classes live in `dcardenasl/ci4-api-core` (Packagist):
   JSON call) and `forward()` (transparent proxy). The BFF's `HubClient` is a
   thin subclass that adds hub-specific cached endpoints (introspect, service
   token, permission registration).
-- `App\Controllers\BaseProxyController` (BFF-103) — `proxy()` for one-to-one
-  passthroughs, `aggregate()` for fan-out + merge into a single
-  `ApiResponse::success({...})` envelope. Catches `ApiException` and renders
-  via `ExceptionFormatter` so error wire-shape matches the rest of the kit.
+- `App\Controllers\BaseProxyController` — `proxy()` for one-to-one
+  passthroughs, `aggregate()` for fail-fast fan-out, `aggregatePartialData()`
+  for independent sources, and `handleOperation()` for sanitized operations.
+  Catches `ApiException` and renders via `ExceptionFormatter`.
 - `App\Filters\IntrospectAuthFilter` (BFF-106) — opt-in JWT auth. Delegates
   `decodeToken()` to `HubClient::introspect()` and populates
   `ContextHolder::get()` with `{user_id, permissions}`. The BFF never holds
@@ -72,8 +74,9 @@ Base classes live in `dcardenasl/ci4-api-core` (Packagist):
 - `App\Libraries\Hub\HubClient` — the only place that calls the hub. Holds
   the cached service token (`getServiceToken()`); auto-renews
   `Config\Hub::$serviceTokenSafetyMargin` seconds before expiry.
-- `Config\Bff` (BFF-002) — local server config: `hubUrl`, `domainUrl`,
-  `allowedOrigins`. `Bff::resolveHubUrl()` (BFF-108) is the canonical
+- `Config\Bff` — local server config: `hubUrl`, single `domainUrl`,
+  `allowedOrigins`, `webAppKey` and the opt-in public-read flag.
+  `Bff::resolveHubUrl()` is the canonical
   resolver — both `Config\Bff::$hubUrl` and `Config\Hub::$url` flow from it.
 - `Config\Hub` — outbound client config: `apiKey`, `appCode`, paths,
   timeouts. Endpoint paths (`$introspectPath`, `$serviceTokenPath`,
@@ -81,6 +84,8 @@ Base classes live in `dcardenasl/ci4-api-core` (Packagist):
 - **No** `DomainAuthFilter` and **no** `PermissionFilter` — by design.
   Backend validates; BFF forwards. `IntrospectAuthFilter` is route-level
   opt-in only.
+- `WebAppKeyRequiredFilter` is route-level and fail-closed; it is used only by
+  trusted server-to-server public-read routes.
 
 ## Adding an endpoint — three patterns
 

@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 CodeIgniter 4 **Backend-for-Frontend** starter — a stateless HTTP gateway
-that fronts a `ci4-api-starter` hub and one or more `ci4-domain-starter`
+that fronts a `ci4-api-starter` hub and one optional `ci4-domain-starter`
 apps for decoupled clients (SPAs, mobile).
 
 ## Role
@@ -14,17 +14,19 @@ apps for decoupled clients (SPAs, mobile).
 ```
 SPA / Mobile  ──▶  ci4-bff-starter (:8188)
                         ├─▶  hub (ci4-api-starter :8180)
-                        └─▶  domain (ci4-domain-starter :8190)
+                        └─▶  domain (ci4-domain-starter :8190, optional)
 ```
 
 The BFF:
 
 - **Forwards** the client's `Authorization: Bearer <jwt>` header as-is to
   the hub and/or domain — it never validates JWTs itself.
+- Composes generic page data with `PageBootstrapController` and can expose
+  direct read-only SQL only when `BFF_PUBLIC_READ_SUPPORT=true`.
 - Provides **CORS multi-origin** support via `BFF_ALLOWED_ORIGINS`.
 - Exposes **health endpoints** (`/ping`, `/health`, `/ready`, `/live`).
-- Holds **no database**, **no user store**, **no permission model** of its
-  own.
+- Holds **no writable database**, **no user store**, **no permission model** of
+  its own. The optional read-only seam is disabled by default.
 
 ## What it is not
 
@@ -43,8 +45,9 @@ Controller  →  HubClient  →  upstream HTTP call
 - `App\Libraries\Hub\HubClient` — single egress point. Holds the cached
   service token (renewed `Config\Hub::$serviceTokenSafetyMargin` seconds
   before expiry).
-- `Config\Bff` — `hubUrl`, `domainUrl`, parsed `allowedOrigins`. Throws on
-  empty origins in production.
+- `Config\Bff` — `hubUrl`, single `domainUrl`, parsed `allowedOrigins`, the
+  public-read key and the opt-in read flag. Throws on empty origins in
+  production.
 - `Config\Cors` — wraps `Config\Bff::$allowedOrigins`.
 
 All other infrastructure (base controllers, CORS filter, security
@@ -72,10 +75,12 @@ For a fully orchestrated multi-repo project, use
 | Variable | Purpose |
 |---|---|
 | `bff.hubUrl` | Base URL of the upstream hub |
-| `bff.domainUrl` | Base URL of the upstream domain app (optional) |
+| `bff.domainUrl` | Base URL of the single upstream domain app (optional) |
 | `BFF_ALLOWED_ORIGINS` | Comma-separated list of permitted CORS origins |
 | `encryption.key` | CI4 encryption key (32 bytes after `hex2bin:` decode) |
 | `hub.appCode` / `hub.apiKey` | Only required if the BFF makes M2M calls to the hub |
+| `BFF_API_KEY` | Shared key for trusted server-to-server public-read calls |
+| `BFF_PUBLIC_READ_SUPPORT` | Enables the read-only SQL seam; default `false` |
 
 ## Adding a proxy endpoint
 

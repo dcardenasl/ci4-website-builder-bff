@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Generic `ContentProxyController` and `PageBootstrapController` examples, with proxy, fail-fast aggregation and partial-degradation primitives in `BaseProxyController`.
+- Bounded request telemetry, fail-closed `X-App-Key` protection for server-to-server public reads, and the opt-in `PublicReadSupport` seam documented in ADR-0001.
+- Integration test suite for the composed page bootstrap route.
+
+### Changed
+
+- Raised `dcardenasl/ci4-api-core` to `^1.5` and restored the generic single-domain `bff.domainUrl` contract used by the website builder.
+- Removed unused local token-secret configuration/generation from the BFF; bearer validation remains an upstream Hub responsibility.
+
 ## [1.6.3] — 2026-08-06
 
 ### Changed
