@@ -9,9 +9,10 @@ use CodeIgniter\Test\CIUnitTestCase;
 /**
  * Guardrail that keeps the BFF model-free and stateless.
  *
- * The only permitted database seam is the opt-in, read-only
- * app/PublicRead connection. Resource-specific readers are intentionally not
- * part of this starter until a real endpoint needs them.
+ * The only permitted database seams are the opt-in, read-only app/PublicRead
+ * connection and the generic app/Support/Sql primitives. Resource-specific
+ * readers are intentionally not part of this starter until a real endpoint
+ * needs them.
  */
 final class StatelessArchitectureTest extends CIUnitTestCase
 {
@@ -47,7 +48,8 @@ final class StatelessArchitectureTest extends CIUnitTestCase
                 continue;
             }
 
-            $readDatabaseSeam = str_starts_with($relative, 'app/PublicRead/');
+            $readDatabaseSeam = str_starts_with($relative, 'app/PublicRead/')
+                || str_starts_with($relative, 'app/Support/Sql/');
             $source = file_get_contents($path);
             if (! is_string($source) || $source === '') {
                 continue;
@@ -84,7 +86,7 @@ final class StatelessArchitectureTest extends CIUnitTestCase
             [],
             $violations,
             "Stateless architecture violations found in ci4-bff-starter:\n- " . implode("\n- ", $violations) . "\n\n"
-            . 'The BFF must remain model-free; direct reads are permitted only through the isolated app/PublicRead read-only seam.'
+            . 'The BFF must remain model-free; direct reads are permitted only through the isolated app/PublicRead seam and app/Support/Sql primitives.'
         );
     }
 }
