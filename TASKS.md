@@ -25,9 +25,12 @@
       agregada real que lo necesite. `WebAppKeyRequiredFilter` multi-caller y `/health` para
       grupos de DB read-only quedan **diferidos** (resuelven necesidades que el base no tiene
       hoy — un segundo caller del BFF, `PublicReadSupport` habilitado). Sí entran sin cambios:
-      completar `app/PublicRead/Support/` (tiene consumidores reales ya portados), guard CORS
-      contra wildcard+credenciales, `StatelessArchitectureTest`, tooling de CI. `RequestTelemetry`
-      solo si se le agrega un consumidor real al portarlo. Ver plan §Fase 5 para el detalle
+      guard CORS contra wildcard+credenciales, `StatelessArchitectureTest` y tooling de CI.
+      La verificación del base mostró que `ContentProxyController`/`PageBootstrapController`
+      son proxies HTTP y no invocan ninguna clase de `app/PublicRead/Support/`; ese soporte queda
+      pendiente hasta que exista un lector/endpoint directo que lo consuma. `RequestTelemetry`
+      ya tiene consumidor para fuentes HTTP; el drift de métricas SQL/cache de Teatro se difiere
+      porque sus productores tampoco existen en este base. Ver plan §Fase 5 para el detalle
       completo de la revisión.
 
 ---
