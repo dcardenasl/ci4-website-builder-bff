@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Generic `ContentProxyController` and `PageBootstrapController` examples, with proxy, fail-fast aggregation and partial-degradation primitives in `BaseProxyController`.
 - Stateless architecture regression coverage for the model-free BFF and its opt-in read-only public-read seam.
+- Standalone read-only SQL projection helpers with MariaDB legacy JSON aggregation compatibility.
 - Bounded request telemetry, fail-closed `X-App-Key` protection for server-to-server public reads, and the opt-in `PublicReadSupport` seam documented in ADR-0001.
 - Integration test suite for the composed page bootstrap route.
 
