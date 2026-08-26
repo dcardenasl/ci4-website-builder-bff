@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - Sanitized unhandled exception responses outside development so internal database and filesystem details are not exposed by the BFF.
+- Rejected wildcard CORS origins when credentialed CORS is enabled.
 
 ### Added
 
