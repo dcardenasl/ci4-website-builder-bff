@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Optional runtime packaging** — added the generic Apache Docker runtime and documented the
   BFF's opt-in `8188` deployment boundary for the website-builder starter.
+- CI now checks Composer platform requirements across PHP 8.2–8.5; dependency installation also provisions the repository's pre-push hook.
 - Raised `dcardenasl/ci4-api-core` to `^1.5` and restored the generic single-domain `bff.domainUrl` contract used by the website builder.
 - Removed unused local token-secret configuration/generation from the BFF; bearer validation remains an upstream Hub responsibility.
 
