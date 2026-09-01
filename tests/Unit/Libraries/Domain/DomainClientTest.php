@@ -29,6 +29,9 @@ class DomainClientTest extends CIUnitTestCase
 
     public function testServicesDomainClientThrowsOnUnconfiguredDomain(): void
     {
+        // The repository's .env may provide a local development URL; this
+        // unit test is specifically about the missing-value branch.
+        config('Bff')->domainUrl = '';
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Domain client misconfigured: bff.domainUrl is not defined.');
 
