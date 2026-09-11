@@ -60,7 +60,8 @@ package — same as the hub and domain starters.
 ```bash
 composer install
 cp .env.example .env
-# Edit .env: set bff.hubUrl, bff.domainUrl, BFF_ALLOWED_ORIGINS.
+# Edit .env: set APP_BASE_URL, BFF_HUB_URL, BFF_DOMAIN_URL and
+# BFF_ALLOWED_ORIGINS. The dotted CI4 keys remain supported for CLI use.
 
 php spark serve --port 8188
 curl http://localhost:8188/ping
@@ -74,11 +75,12 @@ For a fully orchestrated multi-repo project, use
 
 | Variable | Purpose |
 |---|---|
-| `bff.hubUrl` | Base URL of the upstream hub |
-| `bff.domainUrl` | Base URL of the single upstream domain app (optional) |
+| `BFF_HUB_URL` | Base URL of the upstream hub (`bff.hubUrl` remains supported) |
+| `BFF_DOMAIN_URL` | Base URL of the single upstream domain app (optional) |
+| `APP_BASE_URL` | Public base URL used by the Apache/PHP runtime |
 | `BFF_ALLOWED_ORIGINS` | Comma-separated list of permitted CORS origins |
 | `encryption.key` | CI4 encryption key (32 bytes after `hex2bin:` decode) |
-| `hub.appCode` / `hub.apiKey` | Only required if the BFF makes M2M calls to the hub |
+| `HUB_APP_CODE` / `HUB_API_KEY` | Only required if the BFF makes M2M calls to the hub |
 | `BFF_API_KEY` | Shared key for trusted server-to-server public-read calls |
 | `BFF_PUBLIC_READ_SUPPORT` | Enables the read-only SQL seam; default `false` |
 

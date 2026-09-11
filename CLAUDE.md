@@ -206,11 +206,12 @@ new endpoint isn't annotated under `app/Documentation/`.
 
 | Variable | Purpose |
 |---|---|
-| `bff.hubUrl` | Base URL of the hub (e.g. `http://localhost:8180`) |
-| `bff.domainUrl` | Base URL of the upstream domain app (optional) |
+| `BFF_HUB_URL` | Base URL of the hub (e.g. `http://localhost:8180`); `bff.hubUrl` remains supported |
+| `BFF_DOMAIN_URL` | Base URL of the upstream domain app (optional) |
+| `APP_BASE_URL` | Public base URL used by the Apache/PHP runtime |
 | `BFF_ALLOWED_ORIGINS` | Comma-separated CORS allow-list. Empty in production = throw. |
 | `encryption.key` | CI4 encryption key (32 bytes after `hex2bin:` decode) |
-| `hub.appCode`, `hub.apiKey` | Only needed if the BFF uses a service token for M2M calls |
+| `HUB_APP_CODE`, `HUB_API_KEY` | Only needed if the BFF uses a service token for M2M calls |
 
 ## Common pitfalls
 
