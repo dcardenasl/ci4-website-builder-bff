@@ -10,8 +10,6 @@
 
 ## 🟡 Próximo
 
-- [ ] **CNV-007-F8 — Evidencia operativa.** Registrar la clasificación final: implementado,
-      diferido por consumidor, diferido por producto o cerrado con evidencia.
 - [ ] **CNV-007-F9 — Autorización por recurso.** Solo después de la nivelación completa.
 
 ## ⚪ Diferido por diseño
@@ -31,3 +29,7 @@
   aserciones; arquitectura stateless, CORS wildcard+credentials, `PublicReadSupport`, SQL
   portable, CI y ADRs fueron revisados. No se implementa `AdminRead` ni nuevos seams porque no
   existe un consumidor real.
+
+- **CNV-007-F8 — Evidencia operativa.** El BFF queda clasificado como implementado y reconciliado;
+  los seams sin consumidor real permanecen diferidos por diseño. La auditoría externa de
+  dependencias se mantiene en el tracker raíz porque el registro no resolvía durante el gate.

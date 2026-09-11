@@ -59,3 +59,9 @@ un caso de uso, contrato y pruebas primero.
 que `PublicReadSupport`, las primitivas SQL portables, el guard stateless, CORS fail-closed y los
 ADRs están alineados con el código. No se añadió código: `AdminRead`, multi-caller, health de grupos
 read-only y telemetría SQL/cache siguen diferidos por falta de consumidor real.
+
+## ✅ CNV-007-F8 — Evidencia operativa — 2026-09-11
+
+El BFF queda reconciliado y clasificado como implementado; sus seams sin consumidor real permanecen
+diferidos por diseño. La auditoría externa de dependencias se mantiene en el tracker raíz porque
+Packagist/npm no resolvían en el entorno del gate.
