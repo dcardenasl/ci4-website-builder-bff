@@ -32,7 +32,8 @@
 
 - **CNV-007-F8 — Evidencia operativa.** El BFF queda clasificado como implementado y reconciliado;
   los seams sin consumidor real permanecen diferidos por diseño. La auditoría externa de
-  dependencias se mantiene en el tracker raíz porque el registro no resolvía durante el gate.
+  dependencias se ejecutó el 2026-09-11 sin advisories de seguridad; su evidencia y el único
+  warning upstream de paquetes dev abandonados están en el tracker raíz.
 - **CNV-007-F9 — Reconciliación de alcance.** BFF reenvía la autorización downstream sin modelos,
   ACL local ni cache de permisos; los seams sin consumidor siguen diferidos por diseño. Evidencia
   Domain: `729aa89`.
