@@ -56,8 +56,8 @@ class Bff extends BaseConfig
         parent::__construct();
 
         $this->hubUrl = rtrim(self::resolveHubUrl(), '/');
-        $this->domainUrl = rtrim((string) env('bff.domainUrl', ''), '/');
-        $this->webAppKey = (string) (env('BFF_API_KEY') ?: env('WEB_API_KEY', ''));
+        $this->domainUrl = rtrim(self::resolveEnvValue('BFF_DOMAIN_URL', 'bff.domainUrl'), '/');
+        $this->webAppKey = self::resolveEnvValue('BFF_API_KEY', 'WEB_API_KEY');
         $this->publicReadEnabled = filter_var(
             env('BFF_PUBLIC_READ_SUPPORT', false),
             FILTER_VALIDATE_BOOL,
@@ -80,12 +80,34 @@ class Bff extends BaseConfig
      */
     public static function resolveHubUrl(): string
     {
-        $primary = (string) env('bff.hubUrl', '');
+        $primary = self::resolveEnvValue('BFF_HUB_URL', 'bff.hubUrl');
         if ($primary !== '') {
             return $primary;
         }
 
-        return (string) env('hub.url', '');
+        return self::resolveEnvValue('HUB_URL', 'hub.url');
+    }
+
+    /**
+     * Resolve a container-friendly uppercase alias before the dotted CI4 key.
+     * Apache/PHP can drop dotted process variables even when Docker injects
+     * them correctly, so every runtime-critical setting has an explicit alias.
+     */
+    public static function resolveEnvValue(string $alias, string $legacy, string $default = ''): string
+    {
+        $value = getenv($alias);
+        if ($value !== false && trim((string) $value) !== '') {
+            return trim((string) $value);
+        }
+
+        $value = getenv($legacy);
+        if ($value !== false && trim((string) $value) !== '') {
+            return trim((string) $value);
+        }
+
+        $value = env($legacy, $default);
+
+        return trim((string) ($value ?? $default));
     }
 
     /**

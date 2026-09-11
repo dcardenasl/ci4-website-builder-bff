@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Container base URL resolution** — the runtime now consumes the explicit
+  `APP_BASE_URL` alias used by Docker/Apache, preventing invalid root URLs and
+  fatal errors on proxied requests when dotted environment variables are not
+  propagated by the web server.
 - **Optional runtime packaging** — added the generic Apache Docker runtime and documented the
   BFF's opt-in `8188` deployment boundary for the website-builder starter.
 - CI now checks Composer platform requirements across PHP 8.2–8.5; dependency installation also provisions the repository's pre-push hook.
