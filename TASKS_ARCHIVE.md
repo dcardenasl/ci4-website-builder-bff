@@ -3,6 +3,11 @@
 > Historial de tareas completadas. Movido desde TASKS.md para mantener el tracker activo liviano.
 > Última actualización: 2026-08-25
 
+## ✅ CNV-007-F9 — Reconciliación de alcance — 2026-09-11
+
+BFF no implementa autorización por recurso: permanece stateless y reenvía el contexto hacia
+Domain, donde vive la ACL (`729aa89`). No se añade cache ni una abstracción sin consumidor real.
+
 ---
 
 ## ✅ Remediación de huecos profundos — Fase 0 (2026-08-25)

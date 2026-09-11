@@ -10,7 +10,7 @@
 
 ## 🟡 Próximo
 
-- [ ] **CNV-007-F9 — Autorización por recurso.** Solo después de la nivelación completa.
+*(vacío; la autorización por recurso se impone aguas abajo y BFF no la duplica)*
 
 ## ⚪ Diferido por diseño
 
@@ -33,3 +33,6 @@
 - **CNV-007-F8 — Evidencia operativa.** El BFF queda clasificado como implementado y reconciliado;
   los seams sin consumidor real permanecen diferidos por diseño. La auditoría externa de
   dependencias se mantiene en el tracker raíz porque el registro no resolvía durante el gate.
+- **CNV-007-F9 — Reconciliación de alcance.** BFF reenvía la autorización downstream sin modelos,
+  ACL local ni cache de permisos; los seams sin consumidor siguen diferidos por diseño. Evidencia
+  Domain: `729aa89`.
