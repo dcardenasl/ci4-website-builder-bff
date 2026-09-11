@@ -18,7 +18,7 @@ class Services extends BaseService
 {
     use ApiCoreServices;
 
-    public static function hubClient(bool $getShared = true): \dcardenasl\Ci4ApiCore\Http\Client\HubClient
+    public static function hubClient(bool $getShared = true): \App\Libraries\Hub\HubClient
     {
         if ($getShared) {
             return static::getSharedInstance('hubClient');
@@ -38,25 +38,25 @@ class Services extends BaseService
             httpTimeout: $hubConfig->httpTimeout ?? 5,
         );
 
-        return new \dcardenasl\Ci4ApiCore\Http\Client\HubClient(
+        return new \App\Libraries\Hub\HubClient(
             $coreHubConfig,
             \Config\Services::curlrequest(),
             \Config\Services::cache()
         );
     }
 
-    public static function domainClient(string $domainCode, bool $getShared = true): \App\Libraries\Domain\DomainClient
+    public static function domainClient(bool $getShared = true): \App\Libraries\Domain\DomainClient
     {
         if ($getShared) {
-            return static::getSharedInstance('domainClient', $domainCode);
+            return static::getSharedInstance('domainClient');
         }
 
         /** @var \Config\Bff $bffConfig */
         $bffConfig = config('Bff');
-        $baseUrl   = $bffConfig->domains[$domainCode] ?? null;
+        $baseUrl   = $bffConfig->domainUrl;
 
-        if ($baseUrl === null) {
-            throw new \InvalidArgumentException("Domain client misconfigured: Upstream domain URL for '{$domainCode}' is not defined in Config\\Bff::\$domains.");
+        if ($baseUrl === '') {
+            throw new \InvalidArgumentException('Domain client misconfigured: bff.domainUrl is not defined.');
         }
 
         return new \App\Libraries\Domain\DomainClient(
@@ -72,6 +72,15 @@ class Services extends BaseService
         }
 
         return new \dcardenasl\Ci4ApiCore\Monitoring\HealthChecker();
+    }
+
+    public static function publicReadSupport(bool $getShared = true): \App\PublicRead\PublicReadSupport
+    {
+        if ($getShared) {
+            return static::getSharedInstance('publicReadSupport');
+        }
+
+        return new \App\PublicRead\PublicReadSupport();
     }
 
     /**

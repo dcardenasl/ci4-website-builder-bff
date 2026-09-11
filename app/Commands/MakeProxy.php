@@ -77,7 +77,7 @@ class MakeProxy extends BaseCommand
 
         $clientMethod = ($domainLower === 'hub' || $domainLower === 'api')
             ? 'hubClient()'
-            : "domainClient('{$domainLower}')";
+            : 'domainClient()';
 
         $controllerTemplate = $this->getControllerTemplate($pascalDomain, $pascalResource, $clientMethod, $resourceLower);
 
@@ -101,7 +101,7 @@ class MakeProxy extends BaseCommand
 
         CLI::write('', '');
         CLI::write('Scaffolding completed successfully!', 'green');
-        CLI::write('Please ensure the upstream domain ' . CLI::color($domainLower, 'cyan') . ' is configured in ' . CLI::color('Config\\Bff::$domains', 'white') . '.', 'cyan');
+        CLI::write('Please ensure the upstream domain ' . CLI::color($domainLower, 'cyan') . ' is configured in ' . CLI::color('Config\\Bff::$domainUrl', 'white') . '.', 'cyan');
         CLI::write('', '');
 
         return EXIT_SUCCESS;

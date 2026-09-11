@@ -15,6 +15,42 @@ use Config\App;
  */
 class AppProxyIPsTest extends CIUnitTestCase
 {
+    public function testContainerFriendlyBaseUrlAliasIsApplied(): void
+    {
+        // env() reads $_ENV/$_SERVER before falling back to getenv(), and Dotenv
+        // already populated both from .env's own APP_BASE_URL default at bootstrap —
+        // a plain putenv() here would be shadowed by that value. Override all three
+        // to actually exercise the alias regardless of what .env defines.
+        $previousEnv    = $_ENV['APP_BASE_URL'] ?? null;
+        $previousServer = $_SERVER['APP_BASE_URL'] ?? null;
+        $previousGetenv = getenv('APP_BASE_URL');
+
+        $_ENV['APP_BASE_URL']    = 'http://bff.test:8188';
+        $_SERVER['APP_BASE_URL'] = 'http://bff.test:8188';
+        putenv('APP_BASE_URL=http://bff.test:8188');
+
+        try {
+            $config = new App();
+            $this->assertSame('http://bff.test:8188/', $config->baseURL);
+        } finally {
+            if ($previousEnv === null) {
+                unset($_ENV['APP_BASE_URL']);
+            } else {
+                $_ENV['APP_BASE_URL'] = $previousEnv;
+            }
+            if ($previousServer === null) {
+                unset($_SERVER['APP_BASE_URL']);
+            } else {
+                $_SERVER['APP_BASE_URL'] = $previousServer;
+            }
+            if ($previousGetenv === false) {
+                putenv('APP_BASE_URL');
+            } else {
+                putenv('APP_BASE_URL=' . $previousGetenv);
+            }
+        }
+    }
+
     private function withProxyIpsEnv(string $value, callable $fn): void
     {
         $previous = getenv('app.proxyIPs');

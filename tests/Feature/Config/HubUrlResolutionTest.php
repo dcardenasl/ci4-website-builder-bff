@@ -21,6 +21,8 @@ class HubUrlResolutionTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->clearEnvKey('BFF_HUB_URL');
+        $this->clearEnvKey('HUB_URL');
         $this->clearEnvKey('bff.hubUrl');
         $this->clearEnvKey('hub.url');
         Services::resetSingle('bff');
@@ -29,6 +31,8 @@ class HubUrlResolutionTest extends ApiTestCase
 
     protected function tearDown(): void
     {
+        $this->clearEnvKey('BFF_HUB_URL');
+        $this->clearEnvKey('HUB_URL');
         $this->clearEnvKey('bff.hubUrl');
         $this->clearEnvKey('hub.url');
         Services::resetSingle('bff');
@@ -56,6 +60,15 @@ class HubUrlResolutionTest extends ApiTestCase
 
         $this->assertSame('http://primary.test', (new Bff())->hubUrl);
         $this->assertSame('http://primary.test', (new Hub())->url);
+    }
+
+    public function testContainerFriendlyAliasWinsOverDottedKey(): void
+    {
+        $this->setEnvKey('BFF_HUB_URL', 'http://container-hub.test');
+        $this->setEnvKey('bff.hubUrl', 'http://dotted-hub.test');
+
+        $this->assertSame('http://container-hub.test', (new Bff())->hubUrl);
+        $this->assertSame('http://container-hub.test', (new Hub())->url);
     }
 
     public function testFallsBackToLegacyEnvVar(): void

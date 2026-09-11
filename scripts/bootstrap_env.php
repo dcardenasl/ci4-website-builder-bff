@@ -4,10 +4,10 @@
 declare(strict_types=1);
 
 /**
- * Updates existing .env keys and optionally generates JWT secret.
+ * Updates existing .env keys.
  *
  * Usage:
- *   php scripts/bootstrap_env.php --file .env --set "key=value" --generate-jwt
+ *   php scripts/bootstrap_env.php --file .env --set "key=value"
  */
 
 function fail(string $message, int $code = 1): never
@@ -20,7 +20,6 @@ function parseArgs(array $argv): array
 {
     $file = null;
     $sets = [];
-    $generateJwt = false;
 
     for ($i = 1, $count = count($argv); $i < $count; $i++) {
         $arg = $argv[$i];
@@ -51,11 +50,6 @@ function parseArgs(array $argv): array
             continue;
         }
 
-        if ($arg === '--generate-jwt') {
-            $generateJwt = true;
-            continue;
-        }
-
         fail("Unknown argument: $arg");
     }
 
@@ -63,12 +57,8 @@ function parseArgs(array $argv): array
         fail('Missing required argument: --file');
     }
 
-    if ($generateJwt && ! isset($sets['JWT_SECRET_KEY'])) {
-        $sets['JWT_SECRET_KEY'] = bin2hex(random_bytes(32));
-    }
-
     if ($sets === []) {
-        fail('Nothing to update. Provide at least one --set or --generate-jwt.');
+        fail('Nothing to update. Provide at least one --set.');
     }
 
     return [$file, $sets];

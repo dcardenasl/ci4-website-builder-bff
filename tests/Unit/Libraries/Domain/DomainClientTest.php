@@ -29,20 +29,21 @@ class DomainClientTest extends CIUnitTestCase
 
     public function testServicesDomainClientThrowsOnUnconfiguredDomain(): void
     {
+        // The repository's .env may provide a local development URL; this
+        // unit test is specifically about the missing-value branch.
+        config('Bff')->domainUrl = '';
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Upstream domain URL for 'unconfigured' is not defined in Config\Bff::\$domains.");
+        $this->expectExceptionMessage('Domain client misconfigured: bff.domainUrl is not defined.');
 
-        Services::domainClient('unconfigured');
+        Services::domainClient();
     }
 
     public function testServicesDomainClientReturnsConfiguredClient(): void
     {
         $bffConfig = config('Bff');
-        $bffConfig->domains = [
-            'billing' => 'http://billing-domain.test',
-        ];
+        $bffConfig->domainUrl = 'http://billing-domain.test';
 
-        $client = Services::domainClient('billing', false);
+        $client = Services::domainClient(false);
 
         $this->assertInstanceOf(DomainClient::class, $client);
     }
@@ -50,12 +51,10 @@ class DomainClientTest extends CIUnitTestCase
     public function testServicesDomainClientReturnsSharedInstanceByDefault(): void
     {
         $bffConfig = config('Bff');
-        $bffConfig->domains = [
-            'billing' => 'http://billing-domain.test',
-        ];
+        $bffConfig->domainUrl = 'http://billing-domain.test';
 
-        $client1 = Services::domainClient('billing');
-        $client2 = Services::domainClient('billing');
+        $client1 = Services::domainClient();
+        $client2 = Services::domainClient();
 
         $this->assertSame($client1, $client2);
     }
@@ -84,5 +83,24 @@ class DomainClientTest extends CIUnitTestCase
         $this->assertSame('sig==', $headers['X-Twilio-Email-Event-Webhook-Signature']);
         $this->assertSame('1234567890', $headers['X-Twilio-Email-Event-Webhook-Timestamp']);
         $this->assertArrayNotHasKey('X-Not-Allowed', $headers);
+    }
+
+    public function testForwardedHeadersIncludePublicAppKey(): void
+    {
+        $http = $this->createMock(CURLRequest::class);
+        $client = new DomainClient($http, 'http://domain.test');
+        $appConfig = new \Config\App();
+        $request = new \CodeIgniter\HTTP\IncomingRequest(
+            $appConfig,
+            new \CodeIgniter\HTTP\SiteURI($appConfig, 'content'),
+            null,
+            new \CodeIgniter\HTTP\UserAgent()
+        );
+        $request->setHeader('X-App-Key', 'public-key');
+
+        $method = new \ReflectionMethod($client, 'buildForwardedHeaders');
+        $headers = $method->invoke($client, $request);
+
+        $this->assertSame('public-key', $headers['X-App-Key']);
     }
 }

@@ -6,21 +6,11 @@
     "require": {
         "php": "^8.2",
         "codeigniter4/framework": "^4.7",
-        "dcardenasl/ci4-api-core": "^1.2",
+        "dcardenasl/ci4-api-core": "^1.5",
         "monolog/monolog": "^3.5",
         "sentry/sentry": "^4.6",
         "zircote/swagger-php": "^6.0"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../ci4-api-core",
-            "options": {
-                "symlink": true
-            },
-            "canonical": false
-        }
-    ],
     "require-dev": {
         "fakerphp/faker": "^1.9",
         "friendsofphp/php-cs-fixer": "^3.95",
@@ -44,14 +34,19 @@
     "scripts": {
         "post-install-cmd": [
             "chmod +x pre-commit",
-            "[ -d .git/hooks ] && cp pre-commit .git/hooks/pre-commit || true"
+            "[ -d .git/hooks ] && cp pre-commit .git/hooks/pre-commit || true",
+            "chmod +x pre-push",
+            "[ -d .git/hooks ] && cp pre-push .git/hooks/pre-push || true"
         ],
         "post-update-cmd": [
             "chmod +x pre-commit",
-            "[ -d .git/hooks ] && cp pre-commit .git/hooks/pre-commit || true"
+            "[ -d .git/hooks ] && cp pre-commit .git/hooks/pre-commit || true",
+            "chmod +x pre-push",
+            "[ -d .git/hooks ] && cp pre-push .git/hooks/pre-push || true"
         ],
         "test:unit": "phpunit --testsuite=Unit --configuration=phpunit.xml --no-coverage --testdox",
         "test:feature": "phpunit --testsuite=Feature --configuration=phpunit.xml --no-coverage --testdox",
+        "test:integration": "phpunit --testsuite=Integration --configuration=phpunit.integration.xml --no-coverage --testdox",
         "test": "phpunit --configuration=phpunit.xml --no-coverage --testdox",
         "test:coverage": "phpunit --configuration=phpunit.xml --testdox",
         "phpstan": "phpstan analyse --memory-limit=512M",

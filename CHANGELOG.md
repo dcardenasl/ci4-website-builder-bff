@@ -1,11 +1,51 @@
 # Changelog
 
-All notable changes to ci4-bff-starter will be documented in this file.
+All notable changes to `ci4-website-builder-bff` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] — 2026-09-11
+
+First release of `ci4-website-builder-bff` as its own repository. This app was generated
+from the `ci4-bff-starter` template; the entries below `## [1.6.3]` document that template's
+history prior to generation and are not tags of this repository — see the note there.
+
+### Security
+
+- Sanitized unhandled exception responses outside development so internal database and filesystem details are not exposed by the BFF.
+- Rejected wildcard CORS origins when credentialed CORS is enabled.
+
+### Added
+
+- Generic `ContentProxyController` and `PageBootstrapController` examples, with proxy, fail-fast aggregation and partial-degradation primitives in `BaseProxyController`.
+- Stateless architecture regression coverage for the model-free BFF and its opt-in read-only public-read seam.
+- Standalone read-only SQL projection helpers with MariaDB legacy JSON aggregation compatibility.
+- Bounded request telemetry, fail-closed `X-App-Key` protection for server-to-server public reads, and the opt-in `PublicReadSupport` seam documented in ADR-0001.
+- Integration test suite for the composed page bootstrap route.
+
+### Changed
+
+- **Container base URL resolution** — the runtime now consumes the explicit
+  `APP_BASE_URL` alias used by Docker/Apache, preventing invalid root URLs and
+  fatal errors on proxied requests when dotted environment variables are not
+  propagated by the web server.
+- **Optional runtime packaging** — added the generic Apache Docker runtime and documented the
+  BFF's opt-in `8188` deployment boundary for the website-builder starter.
+- CI now checks Composer platform requirements across PHP 8.2–8.5; dependency installation also provisions the repository's pre-push hook.
+- Documented the deferred `AdminRead` and multi-caller `WebAppKeyRequiredFilter` decisions until concrete consumers exist.
+- Raised `dcardenasl/ci4-api-core` to `^1.5` and restored the generic single-domain `bff.domainUrl` contract used by the website builder.
+- Removed unused local token-secret configuration/generation from the BFF; bearer validation remains an upstream Hub responsibility.
+
+---
+
+## Inherited history from `ci4-bff-starter`
+
+The entries below predate this repository's own history: they document the evolution of the
+`ci4-bff-starter` template that this app was generated from, before generation. They are not
+tags of `ci4-website-builder-bff` — kept here for reference only.
 
 ## [1.6.3] — 2026-08-06
 

@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# Non-blocking pre-push hook. The complete quality suite runs in CI and the
+# pre-commit hook remains the local blocking gate.
+
+exit 0

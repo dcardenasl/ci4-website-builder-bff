@@ -4,19 +4,23 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-`ci4-bff-starter` is a CodeIgniter 4 **Backend-for-Frontend** template. It is
+`ci4-website-builder-bff` is a CodeIgniter 4 **Backend-for-Frontend** template
+in the website-builder monorepo (the standalone published starter keeps the
+same contract). It is
 a stateless HTTP gateway placed between decoupled clients (SPA, mobile) and
 the rest of the platform:
 
 ```
-Client (SPA/mobile)  →  ci4-bff-starter (:8188)
+Client (SPA/mobile)  →  ci4-website-builder-bff (:8188, optional)
                             ├─▶ ci4-api-starter (hub, :8180)
                             └─▶ ci4-domain-starter (:8190)
 ```
 
 ## Boundaries
 
-- **No database.** No migrations, no models, no repositories.
+- **No writable database.** No migrations, models, or repositories. The
+  `PublicReadSupport` connection is an explicit, disabled-by-default,
+  read-only seam for sites that opt in.
 - **No JWT validation.** The BFF forwards the client's `Authorization`
   header to the upstream hub/domain. The upstream validates and either
   returns the response or a 401 — the BFF just relays.
@@ -25,12 +29,12 @@ Client (SPA/mobile)  →  ci4-bff-starter (:8188)
 - **No user storage.** Users live in the hub.
 
 The BFF's job is: CORS, request shaping, response aggregation across
-hub + domain, and optional service-token-based admin calls.
+hub + domain, generic content proxying, and optional read-only public reads.
 
 ## Essential commands
 
 ```bash
-# Dev server (default port 8188 to fit the 808X series of the kit)
+# Dev server (default port 8188; opt-in in the website-builder root launcher)
 php spark serve --port 8188
 
 # Tests
@@ -61,10 +65,10 @@ Base classes live in `dcardenasl/ci4-api-core` (Packagist):
   JSON call) and `forward()` (transparent proxy). The BFF's `HubClient` is a
   thin subclass that adds hub-specific cached endpoints (introspect, service
   token, permission registration).
-- `App\Controllers\BaseProxyController` (BFF-103) — `proxy()` for one-to-one
-  passthroughs, `aggregate()` for fan-out + merge into a single
-  `ApiResponse::success({...})` envelope. Catches `ApiException` and renders
-  via `ExceptionFormatter` so error wire-shape matches the rest of the kit.
+- `App\Controllers\BaseProxyController` — `proxy()` for one-to-one
+  passthroughs, `aggregate()` for fail-fast fan-out, `aggregatePartialData()`
+  for independent sources, and `handleOperation()` for sanitized operations.
+  Catches `ApiException` and renders via `ExceptionFormatter`.
 - `App\Filters\IntrospectAuthFilter` (BFF-106) — opt-in JWT auth. Delegates
   `decodeToken()` to `HubClient::introspect()` and populates
   `ContextHolder::get()` with `{user_id, permissions}`. The BFF never holds
@@ -72,8 +76,9 @@ Base classes live in `dcardenasl/ci4-api-core` (Packagist):
 - `App\Libraries\Hub\HubClient` — the only place that calls the hub. Holds
   the cached service token (`getServiceToken()`); auto-renews
   `Config\Hub::$serviceTokenSafetyMargin` seconds before expiry.
-- `Config\Bff` (BFF-002) — local server config: `hubUrl`, `domainUrl`,
-  `allowedOrigins`. `Bff::resolveHubUrl()` (BFF-108) is the canonical
+- `Config\Bff` — local server config: `hubUrl`, single `domainUrl`,
+  `allowedOrigins`, `webAppKey` and the opt-in public-read flag.
+  `Bff::resolveHubUrl()` is the canonical
   resolver — both `Config\Bff::$hubUrl` and `Config\Hub::$url` flow from it.
 - `Config\Hub` — outbound client config: `apiKey`, `appCode`, paths,
   timeouts. Endpoint paths (`$introspectPath`, `$serviceTokenPath`,
@@ -81,6 +86,8 @@ Base classes live in `dcardenasl/ci4-api-core` (Packagist):
 - **No** `DomainAuthFilter` and **no** `PermissionFilter` — by design.
   Backend validates; BFF forwards. `IntrospectAuthFilter` is route-level
   opt-in only.
+- `WebAppKeyRequiredFilter` is route-level and fail-closed; it is used only by
+  trusted server-to-server public-read routes.
 
 ## Adding an endpoint — three patterns
 
@@ -199,11 +206,12 @@ new endpoint isn't annotated under `app/Documentation/`.
 
 | Variable | Purpose |
 |---|---|
-| `bff.hubUrl` | Base URL of the hub (e.g. `http://localhost:8180`) |
-| `bff.domainUrl` | Base URL of the upstream domain app (optional) |
+| `BFF_HUB_URL` | Base URL of the hub (e.g. `http://localhost:8180`); `bff.hubUrl` remains supported |
+| `BFF_DOMAIN_URL` | Base URL of the upstream domain app (optional) |
+| `APP_BASE_URL` | Public base URL used by the Apache/PHP runtime |
 | `BFF_ALLOWED_ORIGINS` | Comma-separated CORS allow-list. Empty in production = throw. |
 | `encryption.key` | CI4 encryption key (32 bytes after `hex2bin:` decode) |
-| `hub.appCode`, `hub.apiKey` | Only needed if the BFF uses a service token for M2M calls |
+| `HUB_APP_CODE`, `HUB_API_KEY` | Only needed if the BFF uses a service token for M2M calls |
 
 ## Common pitfalls
 

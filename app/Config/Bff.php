@@ -21,9 +21,9 @@ use RuntimeException;
  * — the hub's base URL — is canonicalised under `bff.hubUrl` here; `hub.url`
  * is accepted as a fallback so older `.env` files keep working.
  *
- * Authentication is forward-only: the BFF does not validate JWTs, it relays
+ * Authentication is forward-only: the BFF does not validate bearer tokens, it relays
  * the client's `Authorization` header to the upstream. This config therefore
- * has nothing to say about JWT secrets or sessions.
+ * has nothing to say about signing secrets or sessions.
  */
 class Bff extends BaseConfig
 {
@@ -34,12 +34,14 @@ class Bff extends BaseConfig
      */
     public string $hubUrl = '';
 
-    /**
-     * Base URLs of upstream domain apps.
-     *
-     * @var array<string, string> Key is the domain identifier, value is the URL.
-     */
-    public array $domains = [];
+    /** Base URL of the optional upstream domain app (no trailing slash). */
+    public string $domainUrl = '';
+
+    /** Shared key accepted by opt-in public-read routes. */
+    public string $webAppKey = '';
+
+    /** Direct SQL public-read support is deliberately opt-in. */
+    public bool $publicReadEnabled = false;
 
     /**
      * Origins permitted by CORS. Populated from the comma-separated
@@ -53,11 +55,13 @@ class Bff extends BaseConfig
     {
         parent::__construct();
 
-        $this->hubUrl = self::resolveHubUrl();
-
-        // Parse domains from env: BFF_DOMAINS="auth:http://localhost:8190,billing:http://localhost:8091"
-        $rawDomains = (string) env('BFF_DOMAINS', '');
-        $this->domains = $this->parseDomains($rawDomains);
+        $this->hubUrl = rtrim(self::resolveHubUrl(), '/');
+        $this->domainUrl = rtrim(self::resolveEnvValue('BFF_DOMAIN_URL', 'bff.domainUrl'), '/');
+        $this->webAppKey = self::resolveEnvValue('BFF_API_KEY', 'WEB_API_KEY');
+        $this->publicReadEnabled = filter_var(
+            env('BFF_PUBLIC_READ_SUPPORT', false),
+            FILTER_VALIDATE_BOOL,
+        );
 
         $rawOrigins = (string) env('BFF_ALLOWED_ORIGINS', '');
         $this->allowedOrigins = $this->parseCsv($rawOrigins);
@@ -71,40 +75,39 @@ class Bff extends BaseConfig
     }
 
     /**
-     * Parses the BFF_DOMAINS env var into an associative array.
-     *
-     * @return array<string, string>
-     */
-    private function parseDomains(string $value): array
-    {
-        if ($value === '') {
-            return [];
-        }
-
-        $domains = [];
-        foreach (explode(',', $value) as $item) {
-            $parts = explode(':', trim($item), 2);
-            if (count($parts) === 2) {
-                $domains[trim($parts[0])] = trim($parts[1]);
-            }
-        }
-
-        return $domains;
-    }
-
-
-    /**
      * Single resolver shared with {@see Hub} so both configs land on the same
      * hub URL regardless of which env var the operator wrote.
      */
     public static function resolveHubUrl(): string
     {
-        $primary = (string) env('bff.hubUrl', '');
+        $primary = self::resolveEnvValue('BFF_HUB_URL', 'bff.hubUrl');
         if ($primary !== '') {
             return $primary;
         }
 
-        return (string) env('hub.url', '');
+        return self::resolveEnvValue('HUB_URL', 'hub.url');
+    }
+
+    /**
+     * Resolve a container-friendly uppercase alias before the dotted CI4 key.
+     * Apache/PHP can drop dotted process variables even when Docker injects
+     * them correctly, so every runtime-critical setting has an explicit alias.
+     */
+    public static function resolveEnvValue(string $alias, string $legacy, string $default = ''): string
+    {
+        $value = getenv($alias);
+        if ($value !== false && trim((string) $value) !== '') {
+            return trim((string) $value);
+        }
+
+        $value = getenv($legacy);
+        if ($value !== false && trim((string) $value) !== '') {
+            return trim((string) $value);
+        }
+
+        $value = env($legacy, $default);
+
+        return trim((string) ($value ?? $default));
     }
 
     /**

@@ -51,13 +51,4 @@ class DashboardController extends BaseProxyController
         ]);
     }
 
-    private function extractBearerToken(): ?string
-    {
-        $header = $this->request->getHeaderLine('Authorization');
-        if (preg_match('/^Bearer\s+(.+)$/i', $header, $m)) {
-            return trim($m[1]);
-        }
-
-        return null;
-    }
 }

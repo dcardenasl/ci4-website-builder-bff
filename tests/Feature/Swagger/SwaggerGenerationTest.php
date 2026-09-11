@@ -28,7 +28,7 @@ class SwaggerGenerationTest extends ApiTestCase
         $this->assertArrayHasKey('paths', $json);
 
         $paths = $json['paths'];
-        foreach (['/ping', '/live', '/ready', '/health', '/api/v1/users/{id}', '/api/v1/me/dashboard'] as $expected) {
+        foreach (['/ping', '/live', '/ready', '/health', '/api/v1/users/{id}', '/api/v1/me/dashboard', '/api/v1/content/{path}', '/api/v1/public-read/pages/{locale}/{path}'] as $expected) {
             $this->assertArrayHasKey($expected, $paths, "Missing OpenAPI path: $expected");
         }
 
@@ -39,6 +39,8 @@ class SwaggerGenerationTest extends ApiTestCase
         $this->assertContains('System', $tags);
         $this->assertContains('Users', $tags);
         $this->assertContains('Me', $tags);
+        $this->assertContains('Content', $tags);
+        $this->assertContains('PublicRead', $tags);
     }
 
     public function testProxyAndAggregatorRequireBearerAuth(): void

@@ -76,11 +76,32 @@ class Database extends Config
         'busyTimeout'  => 1000,
     ];
 
+    /** Optional, read-only domain connection. It is unused unless explicitly enabled. */
+    public array $public_readonly = [];
+
     public function __construct()
     {
         parent::__construct();
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
         }
+
+        $this->public_readonly = [
+            'DSN' => '',
+            'hostname' => (string) env('DOMAIN_READONLY_DB_HOSTNAME', ''),
+            'username' => (string) env('DOMAIN_READONLY_DB_USERNAME', ''),
+            'password' => (string) env('DOMAIN_READONLY_DB_PASSWORD', ''),
+            'database' => (string) env('DOMAIN_READONLY_DB_DATABASE', ''),
+            'DBDriver' => (string) env('DOMAIN_READONLY_DB_DRIVER', 'MySQLi'),
+            'DBPrefix' => '',
+            'pConnect' => false,
+            'DBDebug' => false,
+            'charset' => 'utf8mb4',
+            'DBCollat' => 'utf8mb4_unicode_ci',
+            'strictOn' => true,
+            'failover' => [],
+            'port' => (int) env('DOMAIN_READONLY_DB_PORT', '3306'),
+            'numberNative' => false,
+        ];
     }
 }

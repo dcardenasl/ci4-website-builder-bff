@@ -69,8 +69,8 @@ class Hub extends BaseConfig
     {
         parent::__construct();
         $this->url     = Bff::resolveHubUrl();
-        $this->apiKey  = (string) (env('hub.apiKey') ?: $this->apiKey);
-        $this->appCode = (string) (env('hub.appCode') ?: $this->appCode);
+        $this->apiKey  = Bff::resolveEnvValue('HUB_API_KEY', 'hub.apiKey', $this->apiKey);
+        $this->appCode = Bff::resolveEnvValue('HUB_APP_CODE', 'hub.appCode', $this->appCode);
 
         $ttl = env('hub.introspectCacheTtl');
         if ($ttl !== null && $ttl !== false && $ttl !== '') {

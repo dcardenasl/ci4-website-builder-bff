@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7cfe6127c22a7f0bf77a8486709a980",
+    "content-hash": "8363cbb2314900dddb9bbf175d2244b6",
     "packages": [
         {
             "name": "codeigniter4/framework",
-            "version": "v4.7.3",
+            "version": "v4.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/codeigniter4/framework.git",
-                "reference": "ab9bf33caa3ccc25b1a4652234d7d0eb1d1937de"
+                "reference": "67ead895b7491703e5e5bc17436778806192008f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/ab9bf33caa3ccc25b1a4652234d7d0eb1d1937de",
-                "reference": "ab9bf33caa3ccc25b1a4652234d7d0eb1d1937de",
+                "url": "https://api.github.com/repos/codeigniter4/framework/zipball/67ead895b7491703e5e5bc17436778806192008f",
+                "reference": "67ead895b7491703e5e5bc17436778806192008f",
                 "shasum": ""
             },
             "require": {
@@ -81,20 +81,20 @@
                 "slack": "https://codeigniterchat.slack.com",
                 "source": "https://github.com/codeigniter4/CodeIgniter4"
             },
-            "time": "2026-05-22T11:21:33+00:00"
+            "time": "2026-07-07T09:23:35+00:00"
         },
         {
             "name": "dcardenasl/ci4-api-core",
-            "version": "v1.2.0",
+            "version": "v1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dcardenasl/ci4-api-core.git",
-                "reference": "26585d937e563e53b4688a0174299dfc6f02c0e4"
+                "reference": "be3e8b0070bf11f30d4c9d98c5a4567b1eaafebc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dcardenasl/ci4-api-core/zipball/26585d937e563e53b4688a0174299dfc6f02c0e4",
-                "reference": "26585d937e563e53b4688a0174299dfc6f02c0e4",
+                "url": "https://api.github.com/repos/dcardenasl/ci4-api-core/zipball/be3e8b0070bf11f30d4c9d98c5a4567b1eaafebc",
+                "reference": "be3e8b0070bf11f30d4c9d98c5a4567b1eaafebc",
                 "shasum": ""
             },
             "require": {
@@ -119,13 +119,14 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.2.x-dev"
+                    "dev-main": "1.4.x-dev"
                 },
                 "codeigniter4": {
                     "commands": [
                         "dcardenasl\\Ci4ApiCore\\Commands\\CoreCheck",
                         "dcardenasl\\Ci4ApiCore\\Commands\\CoreInstall",
                         "dcardenasl\\Ci4ApiCore\\Commands\\EnvCheck",
+                        "dcardenasl\\Ci4ApiCore\\Commands\\HousekeepingClean",
                         "dcardenasl\\Ci4ApiCore\\Commands\\QueueWork"
                     ]
                 }
@@ -170,7 +171,7 @@
                 "issues": "https://github.com/dcardenasl/ci4-api-core/issues",
                 "source": "https://github.com/dcardenasl/ci4-api-core"
             },
-            "time": "2026-08-06T00:18:18+00:00"
+            "time": "2026-08-21T05:42:25+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
