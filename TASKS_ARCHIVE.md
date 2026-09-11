@@ -52,3 +52,10 @@ Los siguientes puntos permanecen diferidos por diseño, no olvidados: `AdminRead
 multi-caller de `WebAppKeyRequiredFilter`, health de grupos read-only y telemetría SQL/cache. No
 existe consumidor real suficiente para justificar esas abstracciones; cualquier reapertura requiere
 un caso de uso, contrato y pruebas primero.
+
+## ✅ GAP-05-BFF — Gate de reconciliación verificado — 2026-09-11
+
+`composer quality` pasó con 161 tests y 409 aserciones (1 skip preexistente). La revisión confirmó
+que `PublicReadSupport`, las primitivas SQL portables, el guard stateless, CORS fail-closed y los
+ADRs están alineados con el código. No se añadió código: `AdminRead`, multi-caller, health de grupos
+read-only y telemetría SQL/cache siguen diferidos por falta de consumidor real.

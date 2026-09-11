@@ -10,9 +10,6 @@
 
 ## 🟡 Próximo
 
-- [ ] **GAP-05-BFF — Gate de reconciliación.** Ejecutar `composer quality`, revisar tests/ADR y
-      confirmar que `PublicReadSupport`, utilidades SQL, guard stateless, CORS y CI siguen siendo
-      correctos. Solo abrir implementación si aparece un gap reproducible con consumidor real.
 - [ ] **CNV-007-F8 — Evidencia operativa.** Registrar la clasificación final: implementado,
       diferido por consumidor, diferido por producto o cerrado con evidencia.
 - [ ] **CNV-007-F9 — Autorización por recurso.** Solo después de la nivelación completa.
@@ -27,3 +24,10 @@
 - BFF stateless, sin DB de escritura, sin usuarios ni validación local de JWT.
 - `IntrospectAuthFilter` opt-in por ruta; `HubClient::introspect()` para identidad.
 - CORS fail-closed; no wildcard con credenciales; cualquier seam nuevo necesita consumidor real.
+
+## ✅ Cerrado con evidencia
+
+- **GAP-05-BFF — Gate de reconciliación.** `composer quality` pasó con 161 tests y 409
+  aserciones; arquitectura stateless, CORS wildcard+credentials, `PublicReadSupport`, SQL
+  portable, CI y ADRs fueron revisados. No se implementa `AdminRead` ni nuevos seams porque no
+  existe un consumidor real.
