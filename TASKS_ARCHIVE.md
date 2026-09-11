@@ -38,3 +38,17 @@ contenido, agregación de página, telemetría acotada, filtro `X-App-Key` fail-
 Museo ni secreto local de firma JWT. Historia limpia: `2457137` inicializa el snapshot del
 starter base; `b8b56cb`, `477eb04`, `ff42c15`, `cd02aa0`, `a941b09`, `d4505cc` y `9a30856`
 aplican el backport paso a paso.
+
+## ✅ GAP-05 reconciliado — 2026-09-11
+
+Verificación del código y la historia confirmó como implementados:
+
+- `PublicReadSupport` y primitivas SQL portables (`ReadOnlyQuery`, `JsonArrayAggregateSql`,
+  `JsonProjectionDecoder`), con pruebas unitarias de proyección;
+- guardrail `StatelessArchitectureTest` y tooling de calidad/CI;
+- guard CORS contra wildcard con credenciales, con regresión de configuración.
+
+Los siguientes puntos permanecen diferidos por diseño, no olvidados: `AdminRead` completo,
+multi-caller de `WebAppKeyRequiredFilter`, health de grupos read-only y telemetría SQL/cache. No
+existe consumidor real suficiente para justificar esas abstracciones; cualquier reapertura requiere
+un caso de uso, contrato y pruebas primero.
