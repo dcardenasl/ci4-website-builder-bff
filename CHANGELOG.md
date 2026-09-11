@@ -1,11 +1,17 @@
 # Changelog
 
-All notable changes to ci4-bff-starter will be documented in this file.
+All notable changes to `ci4-website-builder-bff` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] — 2026-09-11
+
+First release of `ci4-website-builder-bff` as its own repository. This app was generated
+from the `ci4-bff-starter` template; the entries below `## [1.6.3]` document that template's
+history prior to generation and are not tags of this repository — see the note there.
 
 ### Security
 
@@ -32,6 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documented the deferred `AdminRead` and multi-caller `WebAppKeyRequiredFilter` decisions until concrete consumers exist.
 - Raised `dcardenasl/ci4-api-core` to `^1.5` and restored the generic single-domain `bff.domainUrl` contract used by the website builder.
 - Removed unused local token-secret configuration/generation from the BFF; bearer validation remains an upstream Hub responsibility.
+
+---
+
+## Inherited history from `ci4-bff-starter`
+
+The entries below predate this repository's own history: they document the evolution of the
+`ci4-bff-starter` template that this app was generated from, before generation. They are not
+tags of `ci4-website-builder-bff` — kept here for reference only.
 
 ## [1.6.3] — 2026-08-06
 
